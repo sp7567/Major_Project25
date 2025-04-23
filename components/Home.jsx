@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 
 const images = [
-  { src: "src/assets/image1.png", slogan: "Your Heart Health Matters!" },
-  { src: "src/assets/image3.png", slogan: "Track Your Weight with Precision!" },
-  { src: "src/assets/image0.png", slogan: "Stay on Top of Your Body Temperature!" }
+  { src: "../src/assets//image1.png", slogan: "Your Heart Health Matters!" },
+  { src: "../src/assets//image3.png", slogan: "Track Your Weight with Precision!" },
+  { src: "../src/assets//image0.png", slogan: "Stay on Top of Your Body Temperature!" }
 ];
+
 
 const AboutSection = ({ title, content, imgSrc, reverse }) => {
   return (
@@ -97,7 +98,7 @@ function Home() {
 
         <AboutSection
           title={<span><span className="text-red-500">H</span>eart-Rate & SpO2</span>}
-          imgSrc="/src/assets/HeartRate.png"
+          imgSrc="../src/assets/HeartRate.png"
           content="Heart-rate sensor detects pulse by tracking blood volume changes, giving BPM data.
           SpO₂ sensor measures oxygen levels using light absorption to assess respiratory health."
           reverse={false}
@@ -105,7 +106,7 @@ function Home() {
 
         <AboutSection
           title={<span><span className="text-green-500">W</span>ight sensor</span>}
-          imgSrc="/src/assets/Weight.png"
+          imgSrc="../src/assets/Weight.png"
           content="Weight sensor (Load cell): Converts mechanical force or weight into an electrical signal, providing precise measurements for various applications.
           Applications: Commonly used in weighing scales, industrial machinery, and load monitoring systems for accurate weight tracking."
           reverse={true}
@@ -113,7 +114,7 @@ function Home() {
 
         <AboutSection
           title={<span><span className="text-blue-500">b</span>ody-temperature </span>}
-          imgSrc="/src/assets/temp.png"
+          imgSrc="../src/assets/temp.png"
           content="The body temperature sensor uses infrared technology to measure body temperature without direct contact.
           It provides quick and accurate readings, making it ideal for health monitoring and screening systems."
           reverse={false}
