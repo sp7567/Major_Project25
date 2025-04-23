@@ -1,4 +1,7 @@
 import React from "react";
+// Import your images
+import GroupImage from "../src/assets/Group.jpg";
+import GroupImage1 from "../src/assets/model.png";
 
 const AboutSection = ({ title, content, imgSrc, reverse }) => {
   return (
@@ -44,14 +47,14 @@ function About() {
         <div className="space-y-12 md:space-y-16 lg:space-y-20">
           <AboutSection
             title="About Us"
-            imgSrc="../src/assets/Group.jpg"
+            imgSrc={GroupImage}
             content="We are a team of passionate developers who love building innovative products that solve real-world problems. Our mission is to blend creativity with technology and deliver systems that make an impact."
             reverse={false}
           />
 
           <AboutSection
             title="Our Vision"
-            imgSrc="../src/assets/Group.jpg"
+            imgSrc={GroupImage1}
             content="Our vision is to lead innovation by creating user-centric, sustainable, and scalable tech solutions. We aim to empower communities and industries through thoughtful design and cutting-edge development."
             reverse={true}
           />
