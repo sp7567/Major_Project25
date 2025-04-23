@@ -1,7 +1,7 @@
 import React from "react";
 // Import your images
-import GroupImage from "../src/assets/Group.jpg";
-import GroupImage1 from "../src/assets/model.png";
+import GroupImage from "/Group.jpg";
+import GroupImage1 from "/model.png";
 
 const AboutSection = ({ title, content, imgSrc, reverse }) => {
   return (

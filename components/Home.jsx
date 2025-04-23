@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
-// Import all your images
-import image1 from "../src/assets/image1.png";
-import image3 from "../src/assets/image3.png";
-import image0 from "../src/assets/image0.png";
-import HeartRateImage from "../src/assets/HeartRate.png";
-import WeightImage from "../src/assets/Weight.png";
-import TempImage from "../src/assets/temp.png";
 
 const images = [
-  { src: image1, slogan: "Your Heart Health Matters!" },
-  { src: image3, slogan: "Track Your Weight with Precision!" },
-  { src: image0, slogan: "Stay on Top of Your Body Temperature!" }
+  { src: "image1.png", slogan: "Your Heart Health Matters!" },
+  { src: "image3.png", slogan: "Track Your Weight with Precision!" },
+  { src: "image0.png", slogan: "Stay on Top of Your Body Temperature!" }
 ];
+
 
 const AboutSection = ({ title, content, imgSrc, reverse }) => {
   return (
@@ -104,15 +98,15 @@ function Home() {
 
         <AboutSection
           title={<span><span className="text-red-500">H</span>eart-Rate & SpO2</span>}
-          imgSrc={HeartRateImage}
+          imgSrc="../src/assets/HeartRate.png"
           content="Heart-rate sensor detects pulse by tracking blood volume changes, giving BPM data.
           SpO₂ sensor measures oxygen levels using light absorption to assess respiratory health."
           reverse={false}
         />
 
         <AboutSection
-          title={<span><span className="text-green-500">W</span>eight sensor</span>}
-          imgSrc={WeightImage}
+          title={<span><span className="text-green-500">W</span>ight sensor</span>}
+          imgSrc="../src/assets/Weight.png"
           content="Weight sensor (Load cell): Converts mechanical force or weight into an electrical signal, providing precise measurements for various applications.
           Applications: Commonly used in weighing scales, industrial machinery, and load monitoring systems for accurate weight tracking."
           reverse={true}
@@ -120,7 +114,7 @@ function Home() {
 
         <AboutSection
           title={<span><span className="text-blue-500">b</span>ody-temperature </span>}
-          imgSrc={TempImage}
+          imgSrc="../src/assets/temp.png"
           content="The body temperature sensor uses infrared technology to measure body temperature without direct contact.
           It provides quick and accurate readings, making it ideal for health monitoring and screening systems."
           reverse={false}

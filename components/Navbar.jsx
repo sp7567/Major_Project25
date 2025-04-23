@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth } from "../src/firebase/config";
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 // Import your logo image
-import logo from "../src/assets/logo.png";
+import logo from "/logo.png"; // Adjust the path as necessary  
 
 function Navbar() {
   const [user, setUser] = useState(null);

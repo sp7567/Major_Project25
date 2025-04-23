@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../src/firebase/config";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
-import LoginImage from "../src/assets/logq.png"; // Adjust path to your image
+import LoginImage from "/logq.png"; // Adjust path to your image
 
 function Login() {
   const [email, setEmail] = useState("");

@@ -4,7 +4,7 @@ import { ref, set } from "firebase/database";
 import { auth, database } from "../src/firebase/config";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaIdCard, FaVenusMars, FaEnvelope, FaLock, FaCheck, FaExclamationCircle } from "react-icons/fa";
-import Logo from "../src/assets/logo.png"; // Adjust path to your logo
+import Logo from "/logo.png"; // Adjust path to your logo
 
 function Registration() {
   const [formData, setFormData] = useState({
