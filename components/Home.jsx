@@ -106,7 +106,7 @@ function Home() {
 
         <AboutSection
           title={<span><span className="text-green-500">W</span>ight sensor</span>}
-          imgSrc="/Weight.png"
+          imgSrc="/weight.png"
           content="Weight sensor (Load cell): Converts mechanical force or weight into an electrical signal, providing precise measurements for various applications.
           Applications: Commonly used in weighing scales, industrial machinery, and load monitoring systems for accurate weight tracking."
           reverse={true}
