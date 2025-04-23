@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from "../src/firebase/config";
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+// Import your logo image
+import logo from "../src/assets/logo.png";
 
 function Navbar() {
   const [user, setUser] = useState(null);
@@ -41,7 +43,7 @@ function Navbar() {
               className="text-3xl font-bold text-gray-900 tracking-tight transition-all duration-500 transform hover:scale-110 hover:-translate-y-1 hover:text-blue-600 flex items-center space-x-3 font-poppins"
             >
               <img
-                src="src/assets/logo.png"
+                src={logo}
                 alt="Logo"
                 className="w-10 h-10 rounded-full shadow-lg shadow-gray-300"
               />
