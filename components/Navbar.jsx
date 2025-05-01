@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from "../src/firebase/config";
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-// Import your logo image
-import logo from "/logo.png"; // Adjust the path as necessary  
+import logo from "/logo.png"; // Adjust path if needed
 
 function Navbar() {
   const [user, setUser] = useState(null);
@@ -33,9 +32,10 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-gradient-to-b from-gray-100 to-white shadow-lg">
+    <nav className="bg-gradient-to-b from-gray-300 to-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          
           {/* Logo */}
           <div className="flex items-center space-x-6">
             <Link
@@ -67,6 +67,17 @@ function Navbar() {
                   </Link>
                 );
               })}
+
+              {/* Dashboard Link - Only show if user is logged in */}
+              {user && (
+                <Link
+                  to="/dashboard"
+                  className="relative group text-gray-700 font-medium transition duration-300"
+                >
+                  Dashboard
+                  <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-pink-600 transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+              )}
             </div>
 
             {/* Desktop Auth Buttons */}
@@ -102,40 +113,15 @@ function Navbar() {
             <button
               onClick={toggleMenu}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
-              aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
               {!isMenuOpen ? (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               ) : (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               )}
             </button>
@@ -143,7 +129,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu - Right Side Slide */}
+      {/* Mobile Menu */}
       <div className={`fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-xl transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
         <div className="flex flex-col h-full">
           <div className="flex justify-end p-4">
@@ -151,24 +137,13 @@ function Navbar() {
               onClick={toggleMenu}
               className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
             >
-              <svg
-                className="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          
-          <div className="flex-1 px-4 py-2 overflow-y-auto">
+
+          <div className="flex-1 px-4 py-2 overflow-y-auto space-y-2">
             {/* Mobile Nav Links */}
             {['/', '/about', '/contact'].map((path, index) => {
               const labels = ['Home', 'About', 'Contact'];
@@ -183,6 +158,17 @@ function Navbar() {
                 </Link>
               );
             })}
+
+            {/* Mobile Dashboard Link - only if user is logged in */}
+            {user && (
+              <Link
+                to="/dashboard"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-4 py-3 my-1 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-lg font-medium transition-colors duration-200"
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
 
           {/* Mobile Auth Buttons */}
@@ -216,7 +202,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Overlay when menu is open */}
+      {/* Overlay */}
       {isMenuOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"

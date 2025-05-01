@@ -8,6 +8,7 @@ function Dashboard() {
   const [error, setError] = useState("");
   const [isPrnVerified, setIsPrnVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const fetchUserData = async () => {
     if (prn.length !== 12) {
@@ -39,46 +40,43 @@ function Dashboard() {
   };
 
   const downloadReport = () => {
-    // Create a report content
     const reportContent = `
-      Health Report for ${userData.fullName}
-      -------------------------------------
-      
-      Personal Information:
-      - Full Name: ${userData.fullName}
-      - Email: ${userData.email}
-      - Gender: ${userData.gender}
-      - PRN: ${userData.prn}
-      
-      Health Vitals:
-      - Oxygen Level: ${userData.vitals?.oxygenLevel || "N/A"}%
-      - Weight: ${userData.vitals?.weight || "N/A"} kg
-      
-      Last Updated: ${new Date(userData.vitals?.date || Date.now()).toLocaleString()}
+Health Report for ${userData.fullName}
+-------------------------------------
+
+Personal Information:
+- Full Name: ${userData.fullName}
+- Email: ${userData.email}
+- Gender: ${userData.gender}
+- PRN: ${userData.prn}
+
+Health Vitals:
+- Oxygen Level: ${userData.HealthData?.["2025-04-26"]?.SpO2 ?? "N/A"}%
+- Heart Rate: ${userData.HealthData?.["2025-04-26"]?.HeartRate ?? "N/A"} bpm
+- Weight: N/A kg
+
+Last Updated: ${new Date("2025-04-26").toLocaleString()}
     `;
 
-    // Create a Blob with the report content
     const blob = new Blob([reportContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    
-    // Create a temporary anchor element to trigger the download
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `health_report_${userData.prn}_${new Date().toISOString().slice(0, 10)}.txt`;
     document.body.appendChild(a);
     a.click();
-    
-    // Clean up
+
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
       {!isPrnVerified ? (
         <div 
           className="min-h-screen flex items-center justify-center p-6 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80')" }}
         >
           <div className="backdrop-blur-sm bg-white/80 p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-500 hover:scale-[1.02]">
             <div className="text-center mb-8">
@@ -160,12 +158,12 @@ function Dashboard() {
               <div className="flex items-center space-x-4">
                 <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm">
                   <p className="text-white text-sm md:text-base">
-                    Last updated: {new Date(userData.vitals?.date || Date.now()).toLocaleString()}
+                    Last updated: {new Date(userData.HealthData?.date || Date.now()).toLocaleString()}
                   </p>
                 </div>
                 <button
                   onClick={downloadReport}
-                  className="bg-gray-800 hover:bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300 flex items-center"
+                  className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300 flex items-center"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -176,99 +174,81 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Main Dashboard */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* User Info Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-[1.02]">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-                Personal Information
-              </h2>
-              <div className="space-y-3">
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-gray-600">Full Name</span>
-                  <span className="font-medium">{userData.fullName}</span>
-                </div>
-                <div className="flex justify-between pb-2">
-                  <span className="text-gray-600">Email</span>
-                  <span className="font-medium text-blue-600">{userData.email}</span>
-                </div>
-                <div className="flex justify-between  pb-2">
-                  <span className="text-gray-600">Gender</span>
-                  <span className="font-medium">{userData.gender}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">PRN</span>
-                  <span className="font-medium">{userData.prn}</span>
-                </div>
-              </div>
+          {/* Main Dashboard Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card 1 - Oxygen Level */}
+            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
+              <h2 className="text-lg font-semibold mb-2">Oxygen Level</h2>
+              <p className="text-3xl font-bold text-blue-600">
+                {userData.HealthData?.["2025-04-26"]?.SpO2 ?? "N/A"}%
+              </p>
             </div>
 
-            {/* Vitals Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-[1.02]">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                </svg>
-                Health Vitals
-              </h2>
-              <div className="space-y-4">
-                <div className="bg-blue-50 rounded-lg p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Oxygen Level</p>
-                    <p className="text-2xl font-bold text-blue-700">
-                      {userData.vitals?.oxygenLevel || "N/A"}%
-                    </p>
-                  </div>
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Weight</p>
-                    <p className="text-2xl font-bold text-green-700">
-                      {userData.vitals?.weight || "N/A"} kg
-                    </p>
-                  </div>
-                  <div className="bg-green-100 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
+            {/* Card 2 - Heart Rate */}
+            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
+              <h2 className="text-lg font-semibold mb-2">Heart Rate</h2>
+              <p className="text-3xl font-bold text-red-600">
+                {userData.HealthData?.["2025-04-26"]?.HeartRate ?? "N/A"} bpm
+              </p>
             </div>
 
-            {/* Graph Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-1">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-                </svg>
-                Health Trends
-              </h2>
-              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center animate-pulse">
-                <p className="text-gray-400">Health data visualization coming soon</p>
-              </div>
-              <div className="mt-4 flex justify-center space-x-4">
-                <span className="inline-flex items-center text-sm">
-                  <span className="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
-                  Oxygen
-                </span>
-                <span className="inline-flex items-center text-sm">
-                  <span className="w-3 h-3 bg-green-500 rounded-full mr-1"></span>
-                  Weight
-                </span>
-              </div>
+            {/* Card 3 - Weight */}
+            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
+              <h2 className="text-lg font-semibold mb-2">Weight</h2>
+              <p className="text-3xl font-bold text-green-600">N/A kg</p>
+            </div>
+
+            {/* Card 4 - PRN */}
+            <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
+              <h2 className="text-lg font-semibold mb-2">PRN Number</h2>
+              <p className="text-3xl font-bold text-gray-700">{userData.prn}</p>
             </div>
           </div>
         </div>
       )}
+
+      {/* Floating Show History Button */}
+      <button
+        onClick={() => setShowHistory(true)}
+        className="fixed bottom-6 right-6  bg-gradient-to-r from-blue-800 to-gray-900  hover:bg-gray-800 text-white p-4 rounded shadow-lg transition-all duration-300 z-50"
+      >
+        Show History
+      </button>
+
+      {/* Sliding History Panel */}
+      <div className={`fixed inset-0 z-50 flex items-center justify-end transition-transform duration-500 ${showHistory ? "translate-x-0" : "translate-x-full"}`}>
+  <div className="bg-white rounded-l-3xl p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] flex flex-col">
+    <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Health History</h2>
+
+    <div className="space-y-5 flex-1">
+      {userData?.HealthData ? (
+        Object.entries(userData.HealthData).map(([date, data]) => (
+          <div key={date} className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
+            <p className="text-sm font-semibold text-gray-500 mb-2">
+              {new Date(date).toLocaleDateString()}
+            </p>
+            <p className="text-lg font-bold text-blue-900">
+              Oxygen Level: {data.SpO2 ?? "N/A"}%
+            </p>
+            <p className="text-lg font-bold text-red-900">
+              Heart Rate: {data.HeartRate ?? "N/A"} bpm
+            </p>
+          </div>
+        ))
+      ) : (
+        <p className="text-gray-500 text-center">No history data available.</p>
+      )}
+    </div>
+
+    <button
+      onClick={() => setShowHistory(false)}
+      className="mt-8 w-full bg-gradient-to-r from-pink-800 to-gray-900 hover:from-pink-900 hover:to-black text-white py-3 rounded-2xl text-lg font-semibold shadow-md transition-all duration-300"
+    >
+      Close
+    </button>
+  </div>
+</div>
+
     </div>
   );
 }
