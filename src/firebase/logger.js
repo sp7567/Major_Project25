@@ -2,7 +2,7 @@
 
 export const logToCloudWatch = async (message) => {
     try {
-      await fetch("https://your-api-id.execute-api.your-region.amazonaws.com/log", {
+      await fetch("https://kb9m356cmf.execute-api.ap-south-1.amazonaws.com/API_Cloudproject", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
