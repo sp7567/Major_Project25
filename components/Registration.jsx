@@ -5,7 +5,6 @@ import { auth, database } from "../src/firebase/config";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaIdCard, FaVenusMars, FaEnvelope, FaLock, FaCheck, FaExclamationCircle } from "react-icons/fa";
 import Logo from "/logo.png"; // Adjust path to your logo
-import { logToCloudWatch } from '../src/firebase/logger';
 
 function Registration() {
   const [formData, setFormData] = useState({
@@ -29,7 +28,7 @@ function Registration() {
 
   const validateField = (name, value) => {
     let error = "";
-
+    
     switch (name) {
       case "fullName":
         if (!value.trim()) error = "Full name is required";
@@ -56,7 +55,7 @@ function Registration() {
       default:
         break;
     }
-
+    
     return error;
   };
 
@@ -66,7 +65,8 @@ function Registration() {
       ...prevData,
       [name]: type === "checkbox" ? checked : value,
     }));
-
+    
+    // Validate the field when it changes
     const error = validateField(name, type === "checkbox" ? checked : value);
     setErrors(prev => ({ ...prev, [name]: error }));
   };
@@ -79,18 +79,20 @@ function Registration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
+    // Validate all fields before submission
     const newErrors = {};
     Object.keys(formData).forEach(key => {
       newErrors[key] = validateField(key, formData[key]);
     });
-
+    
     setErrors(newErrors);
-
+    
+    // Check if any errors exist
     const hasErrors = Object.values(newErrors).some(error => error !== "");
     if (hasErrors) return;
-
-    const { email, password, fullName, prnNumber } = formData;
+    
+    const { email, password, fullName, prnNumber, terms } = formData;
 
     setIsLoading(true);
 
@@ -102,8 +104,10 @@ function Registration() {
       );
       const user = userCredential.user;
 
+      // Structure for storing user data
       const userRef = ref(database, "users/" + prnNumber);
 
+      // Store user data
       await set(userRef, {
         userId: user.uid,
         fullName: fullName,
@@ -111,31 +115,23 @@ function Registration() {
         prn: prnNumber,
         gender: formData.gender,
         vitals: {
-          date: new Date().toISOString(),
+          date : new Date().toISOString().split("T")[0],
           oxygenLevel: "Unknown",
           weight: "Unknown",
+          heartrate: "Unknown",
         },
       });
 
-      // ✅ Log success to CloudWatch
-      await logToCloudWatch(`User registered: ${fullName} (${email}), PRN: ${prnNumber}`);
-
       navigate("/login", { state: { registrationSuccess: true } });
-
     } catch (error) {
       console.error("Registration error:", error);
       let errorMessage = "Registration failed. Please try again.";
-
       if (error.message.includes("email-already-in-use")) {
         errorMessage = "This email is already registered.";
         setErrors(prev => ({ ...prev, email: errorMessage }));
       } else {
         setErrors(prev => ({ ...prev, form: errorMessage }));
       }
-
-      // ❌ Log error to CloudWatch
-      await logToCloudWatch(`Registration error for email: ${email}, PRN: ${prnNumber} => ${error.message}`);
-
     } finally {
       setIsLoading(false);
     }
@@ -144,8 +140,13 @@ function Registration() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+        {/* Logo and Header */}
         <div className="flex flex-col items-center mb-8">
-          <img src={Logo} alt="Company Logo" className="w-16 h-16 mb-4" />
+          <img 
+            src={Logo} 
+            alt="Company Logo" 
+            className="w-16 h-16 mb-4"
+          />
           <h2 className="text-3xl font-bold text-gray-800 text-center">
             Create Your Account
           </h2>
@@ -155,104 +156,223 @@ function Registration() {
         </div>
 
         {errors.form && (
-          <div className="mb-4 text-red-600 flex items-center gap-2">
-            <FaExclamationCircle /> <span>{errors.form}</span>
+          <div className="mb-6 p-3 bg-red-100 text-gray-600 rounded-lg text-sm flex items-center">
+            <FaExclamationCircle className="mr-2" />
+            {errors.form}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Full Name */}
           <div className="relative">
-            <FaUser className="absolute top-3 left-3 text-gray-400" />
-            <input
-              type="text"
-              name="fullName"
-              placeholder="Full Name"
-              value={formData.fullName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="pl-10 w-full border rounded-lg p-2"
-            />
-            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
+            <label htmlFor="fullName" className="block text-gray-600 font-medium mb-1">
+              Full Name
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaUser className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`w-full border ${errors.fullName ? "border-gray-600" : "border-gray-300"} rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="John Doe"
+              />
+            </div>
+            {errors.fullName && (
+              <p className="mt-1 text-sm text-gray-600 flex items-center">
+                <FaExclamationCircle className="mr-1" size={12} />
+                {errors.fullName}
+              </p>
+            )}
           </div>
 
+          {/* PRN Number */}
           <div className="relative">
-            <FaIdCard className="absolute top-3 left-3 text-gray-400" />
-            <input
-              type="text"
-              name="prnNumber"
-              placeholder="PRN Number"
-              value={formData.prnNumber}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="pl-10 w-full border rounded-lg p-2"
-            />
-            {errors.prnNumber && <p className="text-red-500 text-sm">{errors.prnNumber}</p>}
+            <label htmlFor="prnNumber" className="block text-gray-700 font-medium mb-1">
+              PRN Number
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaIdCard className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                id="prnNumber"
+                name="prnNumber"
+                value={formData.prnNumber}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`w-full border ${errors.prnNumber ? "border-gray-500" : "border-gray-300"} rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="Enter PRN Number"
+              />
+            </div>
+            {errors.prnNumber && (
+              <p className="mt-1 text-sm text-gray-600 flex items-center">
+                <FaExclamationCircle className="mr-1" size={12} />
+                {errors.prnNumber}
+              </p>
+            )}
           </div>
 
+          {/* Gender */}
           <div className="relative">
-            <FaVenusMars className="absolute top-3 left-3 text-gray-400" />
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="pl-10 w-full border rounded-lg p-2"
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-            {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
+            <label htmlFor="gender" className="block text-gray-700 font-medium mb-1">
+              Gender
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaVenusMars className="text-gray-400" />
+              </div>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`w-full border ${errors.gender ? "border-gray-500" : "border-gray-300"} rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none`}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            {errors.gender && (
+              <p className="mt-1 text-sm text-gray-600 flex items-center">
+                <FaExclamationCircle className="mr-1" size={12} />
+                {errors.gender}
+              </p>
+            )}
           </div>
 
+          {/* E-mail */}
           <div className="relative">
-            <FaEnvelope className="absolute top-3 left-3 text-gray-400" />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="pl-10 w-full border rounded-lg p-2"
-            />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
+              Email Address
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaEnvelope className="text-gray-400" />
+              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`w-full border ${errors.email ? "border-gray-500" : "border-gray-300"} rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="you@example.com"
+              />
+            </div>
+            {errors.email && (
+              <p className="mt-1 text-sm text-gray-600 flex items-center">
+                <FaExclamationCircle className="mr-1" size={12} />
+                {errors.email}
+              </p>
+            )}
           </div>
 
+          {/* Password */}
           <div className="relative">
-            <FaLock className="absolute top-3 left-3 text-gray-400" />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className="pl-10 w-full border rounded-lg p-2"
-            />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+            <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaLock className="text-gray-400" />
+              </div>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`w-full border ${errors.password ? "border-gray-500" : "border-gray-300"} rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                placeholder="••••••••"
+              />
+            </div>
+            {errors.password ? (
+              <p className="mt-1 text-sm text-gray-600 flex items-center">
+                <FaExclamationCircle className="mr-1" size={12} />
+                {errors.password}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+            )}
           </div>
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="terms"
-              checked={formData.terms}
-              onChange={handleChange}
-              className="mr-2"
-            />
-            <label className="text-sm text-gray-700">I agree to the terms and conditions</label>
+          {/* Terms & Conditions */}
+          <div className="flex items-start">
+            <div className="flex items-center h-5">
+              <input
+                type="checkbox"
+                id="terms"
+                name="terms"
+                checked={formData.terms}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`w-4 h-4 text-blue-600 ${errors.terms ? "border-gray-500" : "border-gray-300"} rounded focus:ring-blue-500`}
+              />
+            </div>
+            <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+              I agree to the{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Privacy Policy
+              </a>
+            </label>
           </div>
-          {errors.terms && <p className="text-red-500 text-sm">{errors.terms}</p>}
+          {errors.terms && (
+            <p className="mt-1 text-sm text-gray-600 flex items-center">
+              <FaExclamationCircle className="mr-1" size={12} />
+              {errors.terms}
+            </p>
+          )}
 
+          {/* Register Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+            className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white font-medium ${
+              isLoading ? "bg-gray-900" : "bg-gray-900 hover:bg-gray-900"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300`}
           >
-            {isLoading ? "Creating Account..." : "Register"}
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </>
+            ) : (
+              <>
+                <FaCheck className="mr-2" />
+                Register Now
+              </>
+            )}
           </button>
+
+          {/* Login Link */}
+          <div className="text-center text-sm text-gray-600 mt-4">
+            Already have an account?{" "}
+            <button 
+              onClick={() => navigate("/login")} 
+              className="text-gray-600 hover:text-gray-800 font-medium"
+            >
+              Sign in
+            </button>
+          </div>
         </form>
       </div>
     </div>

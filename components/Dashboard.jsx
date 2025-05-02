@@ -52,10 +52,10 @@ Personal Information:
 
 Health Vitals:
 - Oxygen Level: ${userData.HealthData?.["2025-04-26"]?.SpO2 ?? "N/A"}%
-- Heart Rate: ${userData.HealthData?.["2025-04-26"]?.HeartRate ?? "N/A"} bpm
+- Heart Rate: ${userData.vitals.weight?.["2025-04-26"]?.weight ?? "N/A"} bpm
 - Weight: N/A kg
 
-Last Updated: ${new Date("2025-04-26").toLocaleString()}
+Last Updated: ${userData.vitals?.date || "N/A"}
     `;
 
     const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -180,7 +180,7 @@ Last Updated: ${new Date("2025-04-26").toLocaleString()}
             <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
               <h2 className="text-lg font-semibold mb-2">Oxygen Level</h2>
               <p className="text-3xl font-bold text-blue-600">
-                {userData.HealthData?.["2025-04-26"]?.SpO2 ?? "N/A"}%
+                {userData.vitals.oxygenLevel}%
               </p>
             </div>
 
@@ -188,14 +188,14 @@ Last Updated: ${new Date("2025-04-26").toLocaleString()}
             <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
               <h2 className="text-lg font-semibold mb-2">Heart Rate</h2>
               <p className="text-3xl font-bold text-red-600">
-                {userData.HealthData?.["2025-04-26"]?.HeartRate ?? "N/A"} bpm
+                {userData.vitals.heartRate} bpm
               </p>
             </div>
 
             {/* Card 3 - Weight */}
             <div className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
               <h2 className="text-lg font-semibold mb-2">Weight</h2>
-              <p className="text-3xl font-bold text-green-600">N/A kg</p>
+              <p className="text-3xl font-bold text-green-600">{userData.vitals.weight} kg</p>
             </div>
 
             {/* Card 4 - PRN */}
@@ -221,8 +221,8 @@ Last Updated: ${new Date("2025-04-26").toLocaleString()}
     <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Health History</h2>
 
     <div className="space-y-5 flex-1">
-      {userData?.HealthData ? (
-        Object.entries(userData.HealthData).map(([date, data]) => (
+      {userData?.vitals ? (
+        Object.entries(userData.vitals).map(([date, data]) => (
           <div key={date} className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
             <p className="text-sm font-semibold text-gray-500 mb-2">
               {new Date(date).toLocaleDateString()}
@@ -232,6 +232,9 @@ Last Updated: ${new Date("2025-04-26").toLocaleString()}
             </p>
             <p className="text-lg font-bold text-red-900">
               Heart Rate: {data.HeartRate ?? "N/A"} bpm
+            </p>
+            <p className="text-lg font-bold text-red-900">
+              Weight: {data.weight ?? "N/A"} kg
             </p>
           </div>
         ))
